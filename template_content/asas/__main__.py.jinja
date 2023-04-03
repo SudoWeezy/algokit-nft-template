@@ -1,14 +1,13 @@
 import logging
 import sys
 from pathlib import Path
-
+from algosdk.atomic_transaction_composer import transaction
+from beaker import sandbox
+from asas.nfts.arcs import arc3, arc19
+import json
 from dotenv import load_dotenv
 
-from asas import config
-from asas.helpers.build import build
-{% if deployment_language == 'python' -%}
-from asas.helpers.deploy import deploy
-{% endif %}
+
 logging.basicConfig(level=logging.DEBUG, format="%(asctime)s %(levelname)-10s: %(message)s")
 logger = logging.getLogger(__name__)
 logger.info("Loading .env")
@@ -17,32 +16,48 @@ root_path = Path(__file__).parent
 
 
 def main(action: str) -> None:
-    artifact_path = root_path / "artifacts"
+    client = sandbox.get_algod_client()
+    accts = sandbox.get_accounts()
+    acct_sender = accts.pop()  # Replace by your address
+
+    # ---------INPUT--------- #
+
+    metadata_file = "asas/nfts/metadata.json"
+    folder_image = "asas/nfts/Collections/Images/"
+    folder_json = "asas/nfts/Collections/Metadata/"
+    unitname_prefix = "ALGO"  # UnitName (eg for 1 file : ALGO ->  ALGO0001)
+    sender = acct_sender.address
+    manager = acct_sender.address
+    reserve = acct_sender.address
+    upload_ipfs = True
+    pk_sender = acct_sender.private_key
     match action:
-        case "build":
-            for app in config.contracts:
-                logger.info(f"Building app {app.name}")
-                build(artifact_path / app.name, app)
-{% if deployment_language == 'python' %}
-        case "deploy":
-            for app in config.contracts:
-                logger.info(f"Building app {app.name}")
-                app_spec_path = artifact_path / app.name / "application.json"
-                deploy(app_spec_path, config.deploy)
-        case "all":
-            for app in config.contracts:
-                logger.info(f"Building app {app.name}")
-                app_spec_path = build(artifact_path / app.name, app)
-                logger.info(f"Deploying {app.name}")
-                deploy(app_spec_path, config.deploy)
-{% endif %}
+        case "mutable":
+            logger.info(f"Create mutable NFT collection")
+            with open(metadata_file, "r") as f:
+                nfts_metadata = json.load(f)
+            arc3.upload_ipfs(folder_image, folder_json, nfts_metadata, upload_ipfs)
+            txns = arc3.create_acgf_txn(client, nfts_metadata, folder_json, unitname_prefix, sender, manager, reserve)
+
+            for txn in txns:
+                txid = client.send_transaction(txn.sign(pk_sender))
+                res = transaction.wait_for_confirmation(client, txid, 4)
+                print(f"Immutable ARC-3 NFT Created, Asset ID: {res['asset-index']}")
+
+        case "immutable":
+            with open(metadata_file, "r") as f:
+                nfts_metadata = json.load(f)
+            arc3.upload_ipfs(folder_image, folder_json, nfts_metadata, upload_ipfs)
+            txns = arc19.create_acgf_txn(client, nfts_metadata, folder_json, unitname_prefix, sender, manager)
+
+            for txn in txns:
+                txid = client.send_transaction(txn.sign(pk_sender))
+                res = transaction.wait_for_confirmation(client, txid, 4)
+                print(f"Immutable ARC-19 NFT Created, Asset ID: {res['asset-index']}")
+
 
 if __name__ == "__main__":
     if len(sys.argv) > 1:
         main(sys.argv[1])
     else:
-{%- if deployment_language == 'python' %}
-        main("all")
-{% else %}
-        main("build")
-{% endif -%}
+        logger.info(f"Please select mutable or immutable")
