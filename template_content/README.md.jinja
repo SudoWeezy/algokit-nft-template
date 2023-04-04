@@ -2,47 +2,52 @@
 
 This project has been generated using AlgoKit. See below for default getting started instructions.
 
-# Setup
+# Getting started
 
-### Initial setup
+## Adding Images
 
-1. Clone this repository locally
-2. Install pre-requisites:
-   - Install `AlgoKit` - [Link](https://github.com/algorandfoundation/algokit-cli#install): Ensure you can execute `algokit --version`.
-   - Bootstrap your local environment; run `algokit bootstrap all` within this folder, which will:
-     - Install `Poetry` - [Link](https://python-poetry.org/docs/#installation): The minimum required version is `1.2`. Ensure you can execute `poetry -V` and get `1.2`+
-     - Run `poetry install` in the root directory, which will set up a `.venv` folder with a Python virtual environment and also install all Python dependencies
-     - Copy `.env.template` to `.env`
-{%- if deployment_language == "typescript" %}
-     - Run `npm install` in `asas` to install NPM packages
-{% endif %}
-3. Open the project and start debugging / developing via:
-   - VS Code
-     1. Open the repository root in VS Code
-     2. Install recommended extensions
-     3. Hit F5 (or whatever you have debug mapped to) and it should start running with breakpoint debugging.
-        > **Note**
-        > If using Windows: Before running for the first time you will need to select the Python Interpreter.
-        1. Open the command palette (Ctrl/Cmd + Shift + P)
-        2. Search for `Python: Select Interpreter`
-        3. Select `./.venv/Scripts/python.exe`
-   - IDEA (e.g. PyCharm)
-     1. Open the repository root in the IDE
-     2. It should automatically detect it's a Poetry project and set up a Python interpreter and virtual environment.
-     3. Hit Shift+F9 (or whatever you have debug mapped to) and it should start running with breakpoint debugging.
-   - Other
-     1. Open the repository root in your text editor of choice
-     2. In a terminal run `poetry shell`
-     3. Run `python -m asas mutable` or `python -m asas immutable` through your debugger of choice
+To add images to your collection, simply place them in the `Collections/Images` folder.
 
-### Subsequently
+## Updating Metadata
+To update the metadata for your NFT collection, edit the `metadata.json` file. This file contains information such as the name, description, and image for each NFT.
+>Eg for one NFT:
+```
+[
+    {
+        "name": "ALGO 1", 
+        "description": "Stars", 
+        "image": "ALGO_1.png", 
+        "properties":{
+            "author": "Stephane",
+            "traits": {
+                "position": "center",
+                "colors": 4
+            }
+        }
+    }
+]
+```
 
-1. If you update to the latest source code and there are new dependencies you will need to run `algokit bootstrap all` again
-2. Follow step 3 above
+## Creating Immutable NFTs
+
+To create an immutable NFT (ARC-3), run the following command:
+
+```console
+python immutable_nft.py
+```
+
+## Creating Mutable NFTs
+
+To create an immutable NFT (ARC-3 + ARC-19), run the following command:
+
+```console
+python mutable_nft.py
+```
+
 
 # Tools
 
-This project makes use of Python to build Algorand smart contracts. The following tools are in use:
+This project makes use of Python to build ASAs on Algorand. The following tools are in use:
 
 - [Algorand](https://www.algorand.com/) - Layer 1 Blockchain; [Developer portal](https://developer.algorand.org/), [Why Algorand?](https://developer.algorand.org/docs/get-started/basics/why_algorand/)
 - [AlgoKit](https://github.com/algorandfoundation/algokit-cli) - One-stop shop tool for developers building on the Algorand network; [docs](https://github.com/algorandfoundation/algokit-cli/blob/main/docs/algokit.md), [intro tutorial](https://github.com/algorandfoundation/algokit-cli/blob/main/docs/tutorials/intro.md)
@@ -67,3 +72,4 @@ This project makes use of Python to build Algorand smart contracts. The followin
 {% endif -%}
 
 It has also been configured to have a productive dev experience out of the box in VS Code, see the [.vscode](./.vscode) folder.
+
