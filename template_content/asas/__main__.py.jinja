@@ -14,11 +14,28 @@ logger.info("Loading .env")
 load_dotenv()
 root_path = Path(__file__).parent
 
+class account:
+    def __init__(self, address, private_key):
+        self.address = address
+        self.private_key = private_key
 
 def main(action: str) -> None:
+    # -------SANDBOX--------- #
     client = sandbox.get_algod_client()
     accts = sandbox.get_accounts()
     acct_sender = accts.pop()  # Replace by your address
+
+    # -------TESTNET--------- #
+    # To use Testnet, comment the SANDBOX Part
+    # modify the .env file with: 
+    # ALGOD_TOKEN=
+    # ALGOD_SERVER=https://testnet-api.algonode.cloud
+    # ALGOD_PORT=443
+    # If you don't have a testnet account create one:
+    # acct = algosdk.account.generate_account()
+    # print(acct) #Create acct_sender based on the print
+    # acct_sender = account(acct[1], acct[0])
+    # Add funds using https://bank.testnet.algorand.network/
 
     # ---------INPUT--------- #
 
