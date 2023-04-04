@@ -45,7 +45,7 @@ def main(action: str) -> None:
                 print(f"Immutable ARC-3 NFT Created, Asset ID: {res['asset-index']}")
 
         case "mutable":
-        logger.info(f"Create mutable NFT collection")
+            logger.info(f"Create mutable NFT collection")
             with open(metadata_file, "r") as f:
                 nfts_metadata = json.load(f)
             arc3.upload_ipfs(folder_image, folder_json, nfts_metadata, upload_ipfs)
